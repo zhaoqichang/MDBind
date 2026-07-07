@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+/Users/qichangzhao/Desktop/HKU/Projects/BindingSitePrediction/DynaSpatBSP/Github/MDBind/MDBind/datasets/drugs.pkl filter=lfs diff=lfs merge=lfs -text
+datasets/drugs.pkl filter=lfs diff=lfs merge=lfs -text
