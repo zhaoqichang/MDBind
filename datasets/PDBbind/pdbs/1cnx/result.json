@@ -1,0 +1,11 @@
+{
+  "PDB_ID": "1cnx",
+  "decision_reason": "pruned_misato_by_chain_segment",
+  "mapping_action": "save_chains_and_segments",
+  "notes": ";aln_score=1.474100947380066;prot_count=256;frame0_count=256;rel_diff=0.000",
+  "pymol_aln_score": "1.474100947380066",
+  "chains_saved": "A",
+  "segments_saved": "0",
+  "frames_written": 100,
+  "error": ""
+}
