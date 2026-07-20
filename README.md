@@ -3,7 +3,7 @@ Ligand-specific binding site prediction via molecular dynamics and evidential de
 
 ## Introduction
 MDBind is a ligand-aware structure-based method to predict the binding sites of proteins for holo, apo and predicted structures.
-![LABind](./architecture.png)
+![MDBind](./MDBind.pdf)
 
 ## Quick Access
 To facilitate accessibility for the broader research community and reviewers, we provide two dedicated Google Colab environments.
