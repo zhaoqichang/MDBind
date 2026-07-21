@@ -46,6 +46,8 @@ MDBind primarily relies on the following Python packages:
 - rdkit=2025.03.6
 - networkx=3.5
 - openpyxl=3.1.5
+- matplotlib=3.10.8
+- seaborn=0.13.2
 - unimol_tools
 
 In case you want to use conda for your own installation please create a new LABind environment.
@@ -53,7 +55,7 @@ We showed an example of creating an environment.
 ```sh
 conda create -n mdbind python=3.12.12 -y
 conda activate mdbind
-conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.1 -c pytorch -c nvidia -y
+pip install torch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 --index-url https://download.pytorch.org/whl/cu121
 conda install biopython=1.86 transformers=4.39.3 scikit-learn=1.7.1 pandas=2.3.3 numpy=1.26.4 scipy=1.17.0 -c conda-forge -y
 pip install lxml==6.0.2 periodictable==1.7.0 accelerate==0.30.1 networkx==3.5 openpyxl==3.1.5 unimol_tools rdkit
 ```
@@ -113,7 +115,13 @@ chmod +x ./tools/mkdssp ./tools/msms
 3. **Run the feature extraction script**:
 ```bash
 cd scripts/
-python python scripts/get_protein_features.py
+python scripts/get_protein_features.py
+```
+
+### Validation on the CrypticPocket dataset
+We have provided a detailed workflow to reproduce the results on the CrypticPocket dataset using trained models based on the PDBbind dataset. 
+```bash
+python prediction_CrypticPocket.py
 ```
 
 ### Retrain
