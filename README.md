@@ -50,7 +50,7 @@ MDBind primarily relies on the following Python packages:
 - seaborn=0.13.2
 - unimol_tools
 
-In case you want to use conda for your own installation please create a new LABind environment.
+In case you want to use conda for your own installation please create a new MDBind environment.
 We showed an example of creating an environment.
 ```sh
 conda create -n mdbind python=3.12.12 -y

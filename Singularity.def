@@ -23,7 +23,7 @@ From: nvidia/cuda:12.1.0-devel-ubuntu22.04
     # 将 conda 加入环境变量
     export PATH=/opt/miniconda3/bin:$PATH
 
-    # 4. 初始化 conda 并创建环境（或直接利用环境配置文件）
+    # 4. 初始化 conda 并创建环境
     conda init bash
     
     # 创建 Python 3.12 环境并安装核心依赖
@@ -35,13 +35,13 @@ From: nvidia/cuda:12.1.0-devel-ubuntu22.04
     
     conda install pytorch==2.4.0 torchvision==0.19.0 torchaudio==2.4.0 pytorch-cuda=12.1 -c pytorch -c nvidia -y
     conda install biopython=1.86 transformers=4.39.3 scikit-learn=1.7.1 pandas=2.3.3 numpy=1.26.4 scipy=1.17.0 -c conda-forge -y
-    pip install lxml==6.0.2 periodictable==1.7.0 accelerate==0.30.1 networkx==3.5 unimol_tools rdkit
+    pip install lxml==6.0.2 periodictable==1.7.0 accelerate==0.30.1 networkx==3.5 openpyxl==3.1.5 matplotlib==3.10.8 seaborn==0.13.2 unimol_tools rdkit
 
 %environment
     # 容器运行时自动加载的环境变量
     export PATH=/opt/miniconda3/bin:$PATH
     . /opt/miniconda3/etc/profile.d/conda.sh
-    conda activate pytorch2_4
+    conda activate mdbind
 
 %runscript
     # 容器默认执行的命令
