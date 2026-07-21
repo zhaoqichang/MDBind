@@ -11,6 +11,7 @@ import gc
 import glob
 import argparse
 import math
+import signal
 from concurrent.futures import ProcessPoolExecutor, as_completed
 
 import numpy as np
@@ -122,6 +123,28 @@ def get_chi1_angle(residue):
         return None
 
 
+class SuppressOutput:
+    """Context manager to suppress standard output/error during external binary calls."""
+    def __enter__(self):
+        self.null_fd = os.open(os.devnull, os.O_RDWR)
+        self.save_stdout = os.dup(1)
+        self.save_stderr = os.dup(2)
+        os.dup2(self.null_fd, 1)
+        os.dup2(self.null_fd, 2)
+
+    def __exit__(self, *_):
+        os.dup2(self.save_stdout, 1)
+        os.dup2(self.save_stderr, 2)
+        os.close(self.null_fd)
+        os.close(self.save_stdout)
+        os.close(self.save_stderr)
+
+
+# Custom Timeout Exception for MSMS
+class MSMSTimeoutException(Exception):
+    pass
+
+
 # ================= Core Analysis Modules =================
 
 def run_ankh_on_tasks(tasks: list, pretrain_dir: str, device=DEVICE):
@@ -191,11 +214,31 @@ def process_msms_file(pdb_file: str, save_file: str, msms_exec: str):
         model = PDBParser(QUIET=True).get_structure("tmp", pdb_file)[0]
         chain_order = get_chain_order(model, order_by_resseq=True)
         _, residues = structure_to_sequence_and_residues(model, chain_order)
+
+        # Signal handler for MSMS infinite loop
+        def timeout_handler(signum, frame):
+            raise MSMSTimeoutException("MSMS computation stuck")
+
+        old_handler = None
+        if hasattr(signal, 'SIGALRM'):
+            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(300)  # 30 seconds max timeout for MSMS execution
+
         try:
-            surf = get_surface(model, MSMS=msms_exec)
+            with SuppressOutput():
+                surf = get_surface(model, MSMS=msms_exec)
             surf_tree = cKDTree(surf) if surf is not None and len(surf) > 0 else None
+        except MSMSTimeoutException:
+            # Kill orphaned MSMS processes spawned by the current python worker to prevent CPU leakage
+            os.system(f"pkill -9 -P {os.getpid()} > /dev/null 2>&1")
+            surf, surf_tree = np.empty(0), None
         except Exception:
             surf, surf_tree = np.empty(0), None
+        finally:
+            if hasattr(signal, 'SIGALRM'):
+                signal.alarm(0)  # Reset alarm
+                if old_handler is not None:
+                    signal.signal(signal.SIGALRM, old_handler)
 
         X = []
         for residue in residues:
@@ -273,9 +316,12 @@ def process_angle_file(pdb_file: str, save_file: str):
 def run_parallel_feature(tasks: list, process_func, desc: str, n_workers: int, *args):
     """
     Receives tasks: a list of (pdb_file, save_file) tuples.
+    This effectively supports native resume capability by filtering out pre-existing saves.
     """
     valid_tasks = [(f, s) for f, s in tasks if not os.path.exists(s)]
-    if not valid_tasks: return
+    if not valid_tasks:
+        print(f"✅ {desc} already completed. Skipping...")
+        return
 
     with ProcessPoolExecutor(max_workers=n_workers) as executor:
         futures = [executor.submit(process_func, f_path, s_path, *args) for f_path, s_path in valid_tasks]

@@ -115,7 +115,7 @@ chmod +x ./tools/mkdssp ./tools/msms
 3. **Run the feature extraction script**:
 ```bash
 cd scripts/
-python scripts/get_protein_features.py
+python get_protein_features.py
 ```
 
 ### Validation on the CrypticPocket dataset
